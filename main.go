@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"strconv"
 
@@ -9,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/jashfeer/RESTfulAPI/controllers"
 	"github.com/jashfeer/RESTfulAPI/initialization"
 	//	"gorm.io/gorm"
 )
@@ -24,6 +26,11 @@ var books []Book
 
 // Get all books
 func getBooks(w http.ResponseWriter, r *http.Request) {
+	if  !controllers.AlreadyLoggedIn(w,r) {
+		fmt.Fprintf(w,"You are NOT a user \n")
+		fmt.Fprintf(w,"Pleace Login ")
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 
 	result := initialization.Db.Find(&books)
@@ -38,6 +45,11 @@ func getBooks(w http.ResponseWriter, r *http.Request) {
 
 // Get single book
 func getBook(w http.ResponseWriter, r *http.Request) {
+	if  !controllers.AlreadyLoggedIn(w,r) {
+		fmt.Fprintf(w,"You are NOT a user \n")
+		fmt.Fprintf(w,"Pleace Login ")
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	var book Book
 	params := mux.Vars(r) // Gets params
@@ -54,6 +66,11 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 // Add new book
 
 func createBook(w http.ResponseWriter, r *http.Request) {
+	if  !controllers.AlreadyLoggedIn(w,r) {
+		fmt.Fprintf(w,"You are NOT a user \n")
+		fmt.Fprintf(w,"Pleace Login ")
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	var book Book
 
@@ -67,6 +84,11 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 
 //Update book
 func updateBook(w http.ResponseWriter, r *http.Request) {
+	if  !controllers.AlreadyLoggedIn(w,r) {
+		fmt.Fprintf(w,"You are NOT a user \n")
+		fmt.Fprintf(w,"Pleace Login ")
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	var book Book
@@ -80,6 +102,11 @@ func updateBook(w http.ResponseWriter, r *http.Request) {
 
 //Delete book
 func deleteBook(w http.ResponseWriter, r *http.Request) {
+	if  !controllers.AlreadyLoggedIn(w,r) {
+		fmt.Fprintf(w,"You are NOT a user \n")
+		fmt.Fprintf(w,"Pleace Login ")
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	initialization.Db.Delete(&Book{},params["id"])
@@ -100,7 +127,10 @@ func main() {
 	r.HandleFunc("/books", createBook).Methods("POST")
 	 r.HandleFunc("/books/{id}", updateBook).Methods("PUT")
 	 r.HandleFunc("/books/{id}", deleteBook).Methods("DELETE")
-	 
+
+	 r.HandleFunc("/login", controllers.Login).Methods("POST")
+	 r.HandleFunc("/logout", controllers.Logout).Methods("GET")
+
 
 	log.Println("Runing...in port 8081")
 	log.Fatal(http.ListenAndServe(":8081", r))
