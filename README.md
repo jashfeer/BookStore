@@ -1,4 +1,4 @@
-# RESTful_API
+# BookStore
 
 * Simple RESTful API to create, read, update and deleted books
 * Postgres database implementad 
